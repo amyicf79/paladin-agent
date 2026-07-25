@@ -1,13 +1,16 @@
 """
-executor.py v0.8 — 调度官：接受协议输入，输出协议结果
+executor.py v0.9 — 调度官：接受协议输入，输出协议结果
                    chain 模式支持上下文传递（context_updates）
                    集成 Tool Synthesis：元操作 → 代码生成 → 热加载 → 执行
+                   v0.9.3 新增: 工具生成后自动验证→修复→重试闭环
 """
 from typing import Dict, Any, List, Callable, Optional
 import time, concurrent.futures
 from ..commander.protocol import ExecutionPlan, PlanStep, ExecutionResult
 from ..codegen import CodeGenerator
 from ..loader import ToolLoader
+from ..validator import validate_tool
+from ..repair import repair_tool
 
 
 class Executor:
@@ -16,6 +19,7 @@ class Executor:
         self.timeout = timeout
         self.codegen = CodeGenerator(backend=codegen_backend)
         self.loader = ToolLoader()
+        self._tool_metadata: Dict[str, Dict] = {}  # v0.9.3: 生成工具元数据（代码+测试用例）
         self._register_defaults(tools_config)
 
     def register(self, name: str, func: Callable):
@@ -72,7 +76,7 @@ class Executor:
         return meta_results + step_results
 
     def _handle_generate_tool(self, meta) -> ExecutionResult:
-        """处理生成工具元操作：codegen → save → load → register"""
+        """处理生成工具元操作：codegen → save → load → register → 记录元数据"""
         step = PlanStep(tool=f"codegen:{meta.target_name}")
         try:
             code = self.codegen.generate(meta)
@@ -80,6 +84,12 @@ class Executor:
                                                   directory=str(self.loader.tool_dir))
             func = self.loader.load_tool(meta.target_name)
             self.register(meta.target_name, func)
+            # v0.9.3: 记录生成工具的元数据供验证→修复闭环使用
+            self._tool_metadata[meta.target_name] = {
+                "code": code,
+                "test_cases": self._infer_test_cases(meta.target_name, meta.description),
+                "validated": False,
+            }
             return ExecutionResult(
                 step=step,
                 result=f"✅ 工具 '{meta.target_name}' 已生成并注册",
@@ -88,6 +98,45 @@ class Executor:
             )
         except Exception as e:
             return ExecutionResult(step=step, error=f"工具生成失败: {e}")
+
+    def _infer_test_cases(self, tool_name: str, description: str) -> list:
+        """从描述中推断测试用例（可扩展）"""
+        if "标题" in description or "title" in description:
+            return [{"name": "basic", "args": {"url": "https://example.com"}, "expected": "Example Domain"}]
+        return [{"name": "basic", "args": {}, "expected": None}]
+
+    def _validate_and_repair(self, tool_name: str) -> bool:
+        """验证→修复→重载闭环。返回 True 表示通过或已修复。"""
+        meta = self._tool_metadata.get(tool_name)
+        if not meta:
+            return True
+        if meta.get("validated"):
+            return True
+        code = meta["code"]
+        test_cases = meta["test_cases"]
+        report = validate_tool(tool_name, code, test_cases)
+        if report.all_passed:
+            meta["validated"] = True
+            return True
+        # 修复（仅当有 adapter 时）
+        adapter = getattr(self, "adapter", None)
+        if adapter is None:
+            meta["validated"] = True  # 无 adapter，标记已验证避免无限重试
+            return False
+        result = repair_tool(tool_name, code, report, adapter)
+        if result.success and result.repaired_code:
+            # 重新加载修复后的代码
+            try:
+                from ..loader import load_tool_from_code
+                func = load_tool_from_code(result.repaired_code, tool_name)
+                self.tools[tool_name] = func
+                meta["code"] = result.repaired_code
+                meta["validated"] = True
+                return True
+            except Exception:
+                pass
+        meta["validated"] = True
+        return False
 
     def should_continue(self, results: List[ExecutionResult]) -> bool:
         """判断是否要继续下一轮规划"""
@@ -135,6 +184,10 @@ class Executor:
             )
         except Exception as e:
             return ExecutionResult(step=step, error=str(e))
+        finally:
+            # v0.9.3: 生成工具首次执行后自动验证→修复闭环
+            if name in self._tool_metadata:
+                self._validate_and_repair(name)
 
     def _chain(self, steps: List[PlanStep]) -> List[ExecutionResult]:
         """顺序执行，上一步的 context_updates 作为下一步的额外参数"""
