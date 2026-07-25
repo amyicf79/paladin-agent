@@ -3,24 +3,48 @@
     "file": "extract_title_bd69d613.json",
     "tool_name": "extract_title",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T12:49:40.901593"
+    "timestamp": "2026-07-25T13:00:10.152242"
   },
   {
     "file": "search_news_4af4bf4c.json",
     "tool_name": "search_news",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T12:49:42.470201"
+    "timestamp": "2026-07-25T13:00:11.640919"
+  },
+  {
+    "file": "read_file_4a8be9bc.json",
+    "tool_name": "read_file",
+    "error_type": "PassedInMock",
+    "timestamp": "2026-07-25T13:00:11.649431"
+  },
+  {
+    "file": "http_get_f5342c96.json",
+    "tool_name": "http_get",
+    "error_type": "PassedInMock",
+    "timestamp": "2026-07-25T13:00:11.658913"
+  },
+  {
+    "file": "get_time_b0b10b14.json",
+    "tool_name": "get_time",
+    "error_type": "PassedInMock",
+    "timestamp": "2026-07-25T13:00:11.668985"
+  },
+  {
+    "file": "extract_summary_4a5d76d1.json",
+    "tool_name": "extract_summary",
+    "error_type": "PassedInMock",
+    "timestamp": "2026-07-25T13:00:11.678079"
   },
   {
     "file": "extract_title_bd69d613.json",
     "tool_name": "extract_title",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T12:49:43.286416"
+    "timestamp": "2026-07-25T13:00:12.486894"
   },
   {
     "file": "extract_title_bd69d613.json",
     "tool_name": "extract_title",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T12:49:44.083691"
+    "timestamp": "2026-07-25T13:00:13.283886"
   }
 ]

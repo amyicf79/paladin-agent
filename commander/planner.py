@@ -102,14 +102,22 @@ class Planner:
         q = query.lower()
         if "提取" in q and "标题" in q:
             return ("extract_title", "从 URL 提取标题")
+        if "提取" in q and ("摘要" in q or "博客" in q or "文章" in q):
+            return ("extract_summary", "从 URL 提取摘要")
         if "搜索" in q and "新闻" in q:
             return ("search_news", "搜索相关新闻")
         if "搜索" in q:
             return ("search_web", "搜索信息")
-        if "计算" in q:
+        if "计算" in q or "数学" in q:
             return ("calculate", "执行数学计算")
-        if ("读" in q or "文件" in q) and ("内容" in q or "读" in q):
+        if ("读" in q or "文件" in q) and ("日志" in q or "配置" in q or "读" in q):
             return ("read_file", "读取文件内容")
+        if "发送" in q and "http" in q:
+            return ("http_get", "发送 HTTP 请求")
+        if "时间" in q or "日期" in q or "当前" in q:
+            return ("get_time", "获取当前时间")
+        if "教程" in q:
+            return ("search_web", "搜索教程信息")
         return (None, None)
 
     @staticmethod

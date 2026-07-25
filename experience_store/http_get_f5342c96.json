@@ -1,0 +1,10 @@
+{
+  "tool_name": "http_get",
+  "problem_signature": "df412d4c6566df8ad6a11e91c516591a",
+  "original_code": "def http_get(**kwargs) -> str:\n    \"\"\"发送 HTTP 请求（自动生成占位）\"\"\"\n    return f\"执行 {kwargs}：功能待实现\"\n",
+  "repaired_code": "def http_get(**kwargs) -> str:\n    \"\"\"发送 HTTP 请求（自动生成占位）\"\"\"\n    return f\"执行 {kwargs}：功能待实现\"\n",
+  "error_type": "PassedInMock",
+  "error_message": "1/1 测试用例通过",
+  "timestamp": "2026-07-25T13:00:11.658913",
+  "success": true
+}

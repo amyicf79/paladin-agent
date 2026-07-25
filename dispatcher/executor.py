@@ -101,8 +101,19 @@ class Executor:
 
     def _infer_test_cases(self, tool_name: str, description: str) -> list:
         """从描述中推断测试用例（可扩展）"""
-        if "标题" in description or "title" in description:
+        desc_lower = description.lower()
+        if "标题" in description or "title" in desc_lower:
             return [{"name": "basic", "args": {"url": "https://example.com"}, "expected": "Example Domain"}]
+        if "新闻" in description or "news" in desc_lower or "搜索" in description:
+            return [{"name": "basic", "args": {"q": "latest news"}, "expected": "模拟搜索: latest news"}]
+        if "计算" in description or "calc" in desc_lower or "数学" in description:
+            return [{"name": "basic", "args": {"expr": "42+1"}, "expected": "计算: 43"}]
+        if "文件" in description or "file" in desc_lower or "读" in description:
+            return [{"name": "basic", "args": {"filepath": "/tmp/test.txt"}, "expected": None}]
+        if "网络" in description or "网络" in description or "http" in desc_lower:
+            return [{"name": "basic", "args": {"url": "https://httpbin.org/get"}, "expected": None}]
+        if "时间" in description or "time" in desc_lower or "日期" in description:
+            return [{"name": "basic", "args": {}, "expected": None}]
         return [{"name": "basic", "args": {}, "expected": None}]
 
     def _validate_and_repair(self, tool_name: str) -> bool:
@@ -115,8 +126,31 @@ class Executor:
         code = meta["code"]
         test_cases = meta["test_cases"]
         report = validate_tool(tool_name, code, test_cases)
+        # 当前 Executor 不持有 adapter，定义在此供后续分支引用
+        adapter = None
         if report.all_passed:
             meta["validated"] = True
+            # mock 模式：即使验证通过也记录（无 LLM 的"通过"不代表真正正确）
+            if adapter is None:
+                try:
+                    from ..experience_store import Experience, get_store
+                    from datetime import datetime
+                    import hashlib
+                    store = get_store()
+                    store.add_experience(Experience(
+                        tool_name=tool_name,
+                        original_code=code,
+                        repaired_code=code,
+                        error_type="PassedInMock",
+                        error_message=report.summary or "验证通过（mock 模式）",
+                        success=True,
+                        timestamp=datetime.now().isoformat(),
+                        problem_signature=hashlib.md5(
+                            (tool_name + "passed").encode()
+                        ).hexdigest()
+                    ))
+                except Exception:
+                    pass
             return True
         # 修复（仅当有 adapter 时）
         adapter = getattr(self, "adapter", None)
