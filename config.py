@@ -100,6 +100,14 @@ def load_config(config_path: Optional[str] = None) -> PaladinConfig:
             _merge_config(config, data)
             break  # 只加载最高优先级的
 
+    # v1.0.1: 环境变量覆盖（比 TOML 更高优先级，但不进入 Git）
+    env_key = os.environ.get("DEEPSEEK_API_KEY")
+    if env_key:
+        config.models.deepseek_api_key = env_key
+    env_url = os.environ.get("DEEPSEEK_BASE_URL")
+    if env_url:
+        config.models.deepseek_base_url = env_url
+
     return config
 
 
