@@ -18,8 +18,12 @@ SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史�
    - chain: 步骤有依赖 → 顺序执行（每步依赖上一步结果）
    - branch: 需要条件判断 → 带condition过滤
 3. 输出格式严格 JSON：{"mode":"chain|parallel|branch","steps":[{"tool":"","args":{},"condition":""}],"reason":"选择理由"}
-4. 可用工具：search_web, calculate, get_memory, generate_report
-5. 根据执行历史调整策略：如果上轮结果不理想，换一种模式重试"""
+4. 当前已注册工具：search_web, calculate, get_memory, generate_report
+   如果用户请求的能力不在已注册工具中 -> 使用 meta_actions 声明创建新工具
+5. 根据执行历史调整策略：如果上轮结果不理想，换一种模式重试
+6. 当需要创建新工具时，在 meta_actions 字段输出：
+   {"mode":"execute","steps":[],"meta_actions":[{"action_type":"generate_tool","description":"<工具用途>","target_name":"<snake_case工具名>"}]}
+   meta_actions 是数组，即使只有一个新工具也要放在数组中。"""
 
 
 class Planner:
