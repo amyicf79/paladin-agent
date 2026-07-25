@@ -1,4 +1,4 @@
-# Paladin — AGI 时代的最小可执行架构范式
+# Paladin — AI原生架构范式框架 / AI Agent工具生成与进化框架 (Python/LLM/MCP)
 
 > **主线：会执行 → 会创作 → 会进化**
 
