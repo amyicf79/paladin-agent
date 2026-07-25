@@ -121,7 +121,27 @@ class Executor:
         # 修复（仅当有 adapter 时）
         adapter = getattr(self, "adapter", None)
         if adapter is None:
-            meta["validated"] = True  # 无 adapter，标记已验证避免无限重试
+            meta["validated"] = True
+            # v1.0.1: 无 adapter 时也记录验证失败经验
+            try:
+                from ..experience_store import Experience, get_store
+                from datetime import datetime
+                import hashlib
+                store = get_store()
+                store.add_experience(Experience(
+                    tool_name=tool_name,
+                    original_code=code,
+                    repaired_code=code,
+                    error_type="ValidationError",
+                    error_message=report.summary or "验证失败（无修复）",
+                    success=False,
+                    timestamp=datetime.now().isoformat(),
+                    problem_signature=hashlib.md5(
+                        (tool_name + (report.summary or "")).encode()
+                    ).hexdigest()
+                ))
+            except Exception:
+                pass
             return False
         result = repair_tool(tool_name, code, report, adapter)
         if result.success and result.repaired_code:

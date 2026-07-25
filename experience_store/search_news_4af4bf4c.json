@@ -1,0 +1,10 @@
+{
+  "tool_name": "search_news",
+  "problem_signature": "8c219e1a1c6ed116a62cbdb04af6b733",
+  "original_code": "def search_news(query: str) -> str:\n    \"\"\"搜索相关新闻（自动生成）\"\"\"\n    return f\"搜索 '{query}' 的结果：模拟新闻1，模拟新闻2\"\n",
+  "repaired_code": "def search_news(query: str) -> str:\n    \"\"\"搜索相关新闻（自动生成）\"\"\"\n    return f\"搜索 '{query}' 的结果：模拟新闻1，模拟新闻2\"\n",
+  "error_type": "ValidationError",
+  "error_message": "0/1 测试用例通过",
+  "timestamp": "2026-07-25T12:49:42.470201",
+  "success": false
+}
