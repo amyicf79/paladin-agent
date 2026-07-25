@@ -132,6 +132,25 @@ class Executor:
                 self.tools[tool_name] = func
                 meta["code"] = result.repaired_code
                 meta["validated"] = True
+                # v1.0.1: 记录修复经验
+                try:
+                    from ..experience_store import Experience, get_store
+                    from datetime import datetime
+                    import hashlib
+                    store = get_store()
+                    store.add_experience(Experience(
+                        tool_name=tool_name,
+                        original_code=code,
+                        repaired_code=result.repaired_code,
+                        error_type="ValidationError",
+                        error_message=report.summary or "",
+                        timestamp=datetime.now().isoformat(),
+                        problem_signature=hashlib.md5(
+                            (tool_name + (report.summary or "")).encode()
+                        ).hexdigest()
+                    ))
+                except Exception:
+                    pass  # 经验记录失败不影响主流程
                 return True
             except Exception:
                 pass
