@@ -1,0 +1,10 @@
+{
+  "tool_name": "write_file",
+  "problem_signature": "03afe04882503d69b0e776fd228cc1f1",
+  "original_code": "def write_file(**kw): pass",
+  "repaired_code": "def write_file(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:41:52.884290",
+  "success": true
+}

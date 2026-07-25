@@ -1,0 +1,10 @@
+{
+  "tool_name": "read_csv_file",
+  "problem_signature": "2010e58d7943962b82bdbd279efa35c7",
+  "original_code": "def read_csv_file(**kw): pass",
+  "repaired_code": "def read_csv_file(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:41:52.875440",
+  "success": true
+}
