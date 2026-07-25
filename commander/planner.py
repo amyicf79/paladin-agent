@@ -5,6 +5,7 @@ planner.py v0.4 — 指挥官：支持协议输出的上下文感知规划器
 """
 import json
 from typing import List, Dict, Any, Optional, Union
+from dataclasses import asdict
 from .protocol import ExecutionPlan, PlanStep
 
 SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史，决定下一步。
@@ -25,8 +26,10 @@ class Planner:
         if not history: return "无"
         lines = []
         for idx, item in enumerate(history, 1):
-            p = json.dumps(item.get("plan", {}), ensure_ascii=False)
-            r = json.dumps(item.get("results", []), ensure_ascii=False)
+            plan = item.get("plan", ExecutionPlan())
+            results = item.get("results", [])
+            p = json.dumps(plan.__dict__ if hasattr(plan, '__dict__') else plan, ensure_ascii=False, default=str)
+            r = json.dumps([asdict(r) if hasattr(r, '__dict__') else r for r in results], ensure_ascii=False, default=str)
             lines.append(f"第{idx}轮 计划:{p} 结果:{r}")
         return "\n".join(lines)
 
@@ -57,7 +60,12 @@ class Planner:
     def is_complete(self, context: Dict) -> bool:
         history = context.get("history", [])
         if not history: return False
-        return not history[-1].get("plan", {}).get("steps")
+        plan = history[-1].get("plan")
+        if isinstance(plan, ExecutionPlan):
+            return not plan.steps
+        if isinstance(plan, dict):
+            return not plan.get("steps")
+        return False
 
     def synthesize(self, context: Dict) -> str:
         query = context.get("query", "")
