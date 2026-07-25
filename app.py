@@ -1,64 +1,50 @@
 """
 app.py — Paladin 应用入口
 
+指挥官(Planner) + 调度官(Executor) + 三篱笆(Cache/Router/Watch)
+
 用法：
-    python app.py         # 启动交互式会话
-    python app.py "你好"  # 单次查询
+    python app.py "查询今天的天气并生成报告"
 """
 import sys
 from paladin.models.cache import cache
-from paladin.models.router import ModelRouter, quality_score
+from paladin.models.router import ModelRouter
 from paladin.models.watch import CostWatch
 from paladin.adapters.deepseek import DeepSeekAdapter
+from paladin.commander import Planner
+from paladin.dispatcher import Executor
 
 
-class AIApp:
-    """AI-Native 应用实例
-
-    指挥官-调度官模式内建：commander 层做决策，dispatcher 层做路由。
-    模型篱笆（缓存→路由→监控）默认启用。
-    """
-
-    def __init__(self, model: str = "deepseek-chat"):
-        self.adapter = DeepSeekAdapter(model=model)
+class Paladin:
+    def __init__(self):
+        self.adapter = DeepSeekAdapter()
+        self.planner = Planner(self.adapter)
+        self.executor = Executor()
         self.router = ModelRouter()
         self.watch = CostWatch()
-        self._history = []
 
-    def chat(self, user_input: str) -> str:
-        """一次完整对话（缓存→路由→监控）"""
-        kwargs = {"messages": [{"role": "user", "content": user_input}]}
-
-        # 1. 查缓存
-        cached = cache.get("flash", kwargs)
-        if cached:
-            return cached["text"]
-
-        # 2. 调用模型
-        full = ""
-        for chunk in self.adapter.chat([{"role": "user", "content": user_input}]):
-            full += chunk
-
-        # 3. 写缓存
-        cache.put("flash", kwargs, {"text": full})
-
-        # 4. 记录成本（约算）
-        self.watch.record("flash", len(user_input) * 2, len(full) * 2)
-
-        return full
+    def run(self, query: str):
+        plan = self.planner.plan(query)
+        print(f"[指挥官] 计划: {plan}")
+        if not plan:
+            print("[调度官] 无工具调用 → 直接 LLM 对话（走三篱笆）")
+            return "".join(self.adapter.chat([{"role": "user", "content": query}]))
+        results = self.executor.execute(plan)
+        print(f"[调度官] 结果: {results}")
+        return results
 
 
 def main():
-    app = AIApp()
+    app = Paladin()
     if len(sys.argv) > 1:
-        print(app.chat(" ".join(sys.argv[1:])))
+        print(app.run(" ".join(sys.argv[1:])))
     else:
-        print("Paladin AI — Interactive Chat (Ctrl+C to exit)")
+        print("Paladin — AI-Native 脚手架 (Ctrl+C 退出)")
         while True:
             try:
-                user = input("\n> ")
-                if user.strip():
-                    print(app.chat(user))
+                q = input("\n> ")
+                if q.strip():
+                    print(app.run(q))
             except KeyboardInterrupt:
                 print("\nbye.")
                 break
@@ -66,3 +52,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
