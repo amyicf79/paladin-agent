@@ -64,3 +64,21 @@ python app.py
 2. 指挥官-调度官：思考与执行分离，永不意图漂移
 3. Monorepo：AI 编程助手（Cursor 等）打开项目即见全貌
 4. 零框架依赖：不 import langchain / llamaindex，内建替代
+
+---
+
+## 🗺️ 路线图
+
+```
+v0.5 (8月) — Commander 思维链编排器 + 3种任务模版
+v1.0 (10月) — Dispatcher 多智能体调度池 + 国产模型适配器
+v2.0 (12月) — paladin serve 企业级网关 + Sidecar 注入模式
+```
+
+## 📦 pip 安装
+
+```bash
+pip install paladin-ai
+paladin init my_project
+cd my_project && python app.py
+```
