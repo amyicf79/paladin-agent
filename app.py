@@ -23,15 +23,17 @@ class Paladin:
         self.router = ModelRouter()
         self.watch = CostWatch()
 
-    def run(self, query: str):
-        plan = self.planner.plan(query)
-        print(f"[指挥官] 计划: {plan}")
-        if not plan:
-            print("[调度官] 无工具调用 → 直接 LLM 对话（走三篱笆）")
-            return "".join(self.adapter.chat([{"role": "user", "content": query}]))
-        results = self.executor.execute(plan)
-        print(f"[调度官] 结果: {results}")
-        return results
+    def run(self, query: str, max_iterations: int = 3) -> str:
+        context = {"query": query, "history": []}
+        for i in range(max_iterations):
+            plan = self.planner.plan(context)
+            if not plan:
+                break
+            results = self.executor.execute(plan)
+            context["history"].append({"plan": plan, "results": results})
+            if self.planner.is_complete(context):
+                break
+        return self.planner.synthesize(context)
 
 
 def main():
