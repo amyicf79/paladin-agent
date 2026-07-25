@@ -110,7 +110,9 @@
 │   └── paladin.toml   → 配置文件
 │
 └── 🌳 会进化 — 生长中
-    └── validator.py   → 沙箱验证器（最新⏫）
+    ├── 🟢 validator.py   → 沙箱验证器（4项测试通过）
+    ├── ⬜ repair.py      → 自动修复器（计划中）
+    └── ⬜ executor 闭环  → 验证→修复→重试循环（计划中）
 ```
 
 ---
@@ -118,11 +120,40 @@
 ## 快速体验
 
 ```bash
-# 所有 6 个场景演示
+# 零配置启动，查看 6 个演示场景
 python -m paladin.app "提取标题"
+```
 
-# 或交互式演示
-paladin demo
+`paladin run "提取标题"` 的输出示例：
+
+```
+⚔️  Paladin v0.8 演示靶场 (零依赖终端可视化)
+  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递 / 工具合成 / 自主缺位检测
+
+  📌 场景 1: 多步推理 (Chain)
+     Planner 选择 chain 模式，先算乘法，再比较。
+     ──────────────────────────────────────────
+  💬 用户: 计算 25 * 4 + 10，然后告诉我结果是否大于 50。
+  ────────────────────────────────────────────────────────────
+  ├── [第 1 轮] 模式: CHAIN
+    │   ├── 工具: calculate
+    │       ✅ 计算: 100                    ← 第1步: 25*4=100
+    │   ├── 工具: calculate
+    │       ✅ 计算: 110                    ← 第2步: 100+10=110
+    └── 工具: calculate
+            ✅ 计算: True                   ← 第3步: 110>50=True
+  🤖 最终回答: ✅ chain 模式演示完成。
+  ────────────────────────────────────────────────────────────
+
+  📌 场景 5: 工具合成 (Tool Synthesis)     ← 自动生成+热加载+执行
+    │   ├── 工具: codegen:extract_title
+    │       ✅ 工具 'extract_title' 已生成并注册
+    └── 工具: extract_title (url=https://www.python.org)
+            ✅ 无标题  (812ms — 真实 urllib 请求)
+
+  📌 场景 6: 自主缺位检测                   ← Planner 自动识别缺工具
+  💬 用户: 提取标题
+  ✅ 完成。
 ```
 
 ---
@@ -192,21 +223,29 @@ result = app.run("分析这份财报，生成摘要报告")
 
 ```
 paladin/
-├── commander/       # 决策层
-│   ├── planner.py   # 规划器（含 Mock 模式缺位检测）
-│   └── protocol.py  # 接口协议（PlanStep / MetaAction / ExecutionResult）
-├── dispatcher/      # 执行层
-│   └── executor.py  # 执行器（chain/parallel/branch + 工具合成）
-├── models/          # 三篱笆
-├── adapters/        # 模型适配器
-├── codegen.py       # 工具代码生成器
-├── loader.py        # 动态模块加载器
-├── validator.py     # 沙箱验证器
-├── config.py        # 配置系统
-├── app.py           # 入口 + 6 场景演示
-├── paladin.toml     # 默认配置
-├── generated_tools/ # 持久化工具目录
+├── README.md
+├── adapters/
+│   └── deepseek.py
+├── app.py            ← 入口 + 6 场景演示
+├── cli.py            ← CLI 脚手架
+├── codegen.py        ← ⚡ 生成层: 工具代码生成器
+├── commander/
+│   ├── planner.py    ← 规划器（含 Mock 模式缺位检测）
+│   └── protocol.py   ← 接口协议（PlanStep / MetaAction / ExecutionResult）
+├── config.py         ← 配置系统
+├── dispatcher/
+│   └── executor.py   ← 执行器（chain/parallel/branch + 工具合成）
+├── generated_tools/
+│   └── extract_title.py  ← 📦 持久层: 已生成工具
+├── loader.py         ← ⚡ 生成层: 动态模块加载器
+├── models/
+│   ├── cache.py
+│   ├── router.py
+│   └── watch.py
+├── paladin.toml      ← 默认配置
+├── pyproject.toml
+├── validator.py      ← ⚡ 生成层: 沙箱验证器
 └── docs/
-    ├── ARCHITECTURE.md     # 三阶跃迁路线图
-    └── TREE_METHODOLOGY.md # 树状架构开发方法论
+    ├── ARCHITECTURE.md
+    └── TREE_METHODOLOGY.md
 ```
