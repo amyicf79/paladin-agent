@@ -8,14 +8,17 @@ from typing import List, Dict, Any, Optional, Union
 from dataclasses import asdict
 from .protocol import ExecutionPlan, PlanStep
 
-SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史，决定下一步。
+SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史，自主选择执行策略并生成计划。
+
 **规则**：
-1. 已有足够信息则返回 {"mode":"chain","steps":[],"reason":"已回答"}
-2. 需调用工具时，输出 JSON：{"mode":"chain|parallel|branch","steps":[{"tool":"","args":{},"condition":""}]}
-   - chain: 顺序执行（默认）
-   - parallel: 互不依赖，可同时执行
-   - branch: 带 condition，条件满足才执行
-3. 可用工具：search_web, calculate, get_memory, generate_report"""
+1. 已有足够信息则输出 {"mode":"chain","steps":[],"reason":"已回答"}
+2. 需调用工具时，分析任务特征自主选择模式：
+   - parallel: 步骤间无依赖 → 并行执行（推荐搜索+计算等独立任务）
+   - chain: 步骤有依赖 → 顺序执行（每步依赖上一步结果）
+   - branch: 需要条件判断 → 带condition过滤
+3. 输出格式严格 JSON：{"mode":"chain|parallel|branch","steps":[{"tool":"","args":{},"condition":""}],"reason":"选择理由"}
+4. 可用工具：search_web, calculate, get_memory, generate_report
+5. 根据执行历史调整策略：如果上轮结果不理想，换一种模式重试"""
 
 
 class Planner:

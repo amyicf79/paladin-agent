@@ -19,7 +19,7 @@ class Executor:
         self.register("search_web", lambda q: f"模拟搜索: {q}")
         self.register("calculate", lambda expr: f"计算: {eval(expr)}")
         self.register("get_memory", lambda x: f"回忆: {x} (模拟)")
-        self.register("generate_report", lambda t: f"# 报告: {t}\n\nPaladin v0.4")
+        self.register("generate_report", lambda t: f"# 报告: {t}\n\nPaladin v0.5")
 
     def execute(self, plan: ExecutionPlan) -> List[ExecutionResult]:
         mode = plan.mode
@@ -30,6 +30,13 @@ class Executor:
         elif mode == "branch":
             return self._branch(plan.steps)
         return self._chain(plan.steps)
+
+    def should_continue(self, results: List[ExecutionResult]) -> bool:
+        """判断是否要继续下一轮规划"""
+        for r in results:
+            if r.error:
+                return True  # 有错误，可重试
+        return bool(results)  # 有结果则继续
 
     def _run_step(self, step: PlanStep) -> ExecutionResult:
         name = step.tool
