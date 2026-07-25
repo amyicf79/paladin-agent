@@ -19,7 +19,7 @@ class Executor:
         self.register("search_web", lambda q: f"模拟搜索: {q}")
         self.register("calculate", lambda expr: f"计算: {eval(expr)}")
         self.register("get_memory", lambda x: f"回忆: {x} (模拟)")
-        self.register("generate_report", lambda t: f"# 报告: {t}\n\nPaladin v0.5")
+        self.register("generate_report", lambda title="": f"# 报告: {title}\n\nPaladin v0.6")
 
     def execute(self, plan: ExecutionPlan) -> List[ExecutionResult]:
         mode = plan.mode

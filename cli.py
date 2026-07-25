@@ -61,10 +61,14 @@ def main():
     sub = parser.add_subparsers(dest="command")
     init_cmd = sub.add_parser("init", help="初始化新项目")
     init_cmd.add_argument("name", help="项目名称")
+    sub.add_parser("demo", help="运行内置演示场景，展示自主编排能力（零依赖终端可视化）")
 
     args = parser.parse_args()
     if args.command == "init":
         init_project(args.name)
+    elif args.command == "demo":
+        from paladin.app import Paladin
+        Paladin.demo()
     else:
         parser.print_help()
 
