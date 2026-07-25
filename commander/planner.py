@@ -1,12 +1,14 @@
 """
-planner.py v0.4 — 指挥官：支持协议输出的上下文感知规划器
+planner.py v0.8 — 指挥官：支持协议输出的上下文感知规划器
+                   v0.8 扩展: mock 模式工具缺位检测 → 自动触发工具合成
 
-返回 ExecutionPlan（含 mode + steps），非裸列表
+返回 ExecutionPlan（含 mode + steps + meta_actions），非裸列表
 """
 import json
-from typing import List, Dict, Any, Optional, Union
+import re
+from typing import List, Dict, Any, Optional, Set, Union, Tuple
 from dataclasses import asdict
-from .protocol import ExecutionPlan, PlanStep
+from .protocol import ExecutionPlan, PlanStep, MetaAction
 
 SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史，自主选择执行策略并生成计划。
 
@@ -37,11 +39,17 @@ class Planner:
             lines.append(f"第{idx}轮 计划:{p} 结果:{r}")
         return "\n".join(lines)
 
-    def plan(self, context: Union[str, Dict]) -> ExecutionPlan:
+    def plan(self, context: Union[str, Dict], tool_registry: Optional[Set[str]] = None) -> ExecutionPlan:
         if isinstance(context, str):
             context = {"query": context, "history": []}
         query = context.get("query", "")
         history = context.get("history", [])
+
+        # Mock 模式：工具缺位检测 + 自主生成
+        if not self.adapter and tool_registry is not None:
+            return self._mock_plan(query, tool_registry)
+
+        # Real LLM 模式（原逻辑）
         if not self.adapter:
             return ExecutionPlan()
         h = self._format_history(history)
@@ -60,6 +68,67 @@ class Planner:
             )
         except:
             return ExecutionPlan()
+
+    def _mock_plan(self, query: str, tool_registry: Set[str]) -> ExecutionPlan:
+        """Mock 模式：解析用户意图，检测工具缺位，自动生成 MetaAction"""
+        tool_name, description = self._parse_tool_intent(query)
+        if tool_name is None:
+            return ExecutionPlan()  # 匹配不到任何已知模式
+
+        meta_actions = []
+        steps = []
+
+        if tool_name not in tool_registry:
+            # 工具不存在 → 构造 MetaAction 触发合成
+            meta_actions.append(MetaAction(
+                action_type="generate_tool",
+                description=description,
+                target_name=tool_name,
+            ))
+
+        # 构造一个占位 step（工具合成后会被 executor 执行）
+        default_args = self._infer_args(tool_name, query)
+        steps.append(PlanStep(tool=tool_name, args=default_args))
+
+        return ExecutionPlan(
+            mode="chain",
+            steps=steps,
+            meta_actions=meta_actions,
+            reason=f"检测到工具 '{tool_name}' {'不存在，已触发合成' if meta_actions else '已存在，直接执行'}",
+        )
+
+    @staticmethod
+    def _parse_tool_intent(query: str) -> Tuple[Optional[str], Optional[str]]:
+        """关键词→工具名映射（零依赖，纯字符串匹配）"""
+        q = query.lower()
+        if "提取" in q and "标题" in q:
+            return ("extract_title", "从 URL 提取标题")
+        if "搜索" in q and "新闻" in q:
+            return ("search_news", "搜索相关新闻")
+        if "搜索" in q:
+            return ("search_web", "搜索信息")
+        if "计算" in q:
+            return ("calculate", "执行数学计算")
+        if ("读" in q or "文件" in q) and ("内容" in q or "读" in q):
+            return ("read_file", "读取文件内容")
+        return (None, None)
+
+    @staticmethod
+    def _infer_args(tool_name: str, query: str) -> Dict[str, Any]:
+        """根据工具名和 query 推断默认参数"""
+        if tool_name == "extract_title":
+            return {"url": "https://www.python.org"}
+        if tool_name in ("search_web", "search_news"):
+            # 从 query 中提取搜索关键词（去掉动词）
+            q = query
+            for kw in ["搜索", "新闻", "关于", "的"]:
+                q = q.replace(kw, "")
+            return {"q": q.strip() or query}
+        if tool_name == "calculate":
+            return {"expr": query}
+        if tool_name == "read_file":
+            return {"filepath": "/tmp/data.txt"}
+        return {}
 
     def is_complete(self, context: Dict) -> bool:
         history = context.get("history", [])

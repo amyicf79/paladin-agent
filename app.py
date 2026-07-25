@@ -41,8 +41,9 @@ class Paladin:
     def run(self, query: str, max_iterations: Optional[int] = None) -> str:
         iterations = max_iterations or self.config.core.max_iterations
         context = {"query": query, "history": [], "shared": {}}
+        tool_registry = set(self.executor.tools.keys())
         for i in range(iterations):
-            plan = self.planner.plan(context)
+            plan = self.planner.plan(context, tool_registry=tool_registry)
             if not plan:
                 break
             results = self.executor.execute(plan)
@@ -50,6 +51,11 @@ class Paladin:
             for r in results:
                 if r.context_updates:
                     context["shared"].update(r.context_updates)
+            # 新生成的工具加入注册表（供后续轮次使用）
+            if plan.meta_actions:
+                for ma in plan.meta_actions:
+                    if ma.action_type == "generate_tool":
+                        tool_registry.add(ma.target_name)
             context["history"].append({"plan": plan, "results": results})
             if self.planner.is_complete(context):
                 break
@@ -127,7 +133,7 @@ class Paladin:
         term_width = min(shutil.get_terminal_size().columns, 100)
         print("\033[95m" + "=" * term_width + "\033[0m")
         print("\033[1m  ⚔️  Paladin v0.8 演示靶场 (零依赖终端可视化)\033[0m")
-        print("  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递 / 工具合成\n")
+        print("  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递 / 工具合成 / 自主缺位检测\n")
 
         for idx, sc in enumerate(scenarios, 1):
             if not auto:
@@ -139,6 +145,22 @@ class Paladin:
             result = Paladin._run_demo(sc["query"], sc["mode"], sc["steps"], meta_dicts=meta_dicts)
             Paladin._render_tree(sc["query"], result, term_width)
             print("\n" + "─" * term_width)
+
+        # 场景 6: 自主缺位检测（走真实的 Paladin.run() 路径）
+        if not auto:
+            input(f"\033[92m  按 Enter 执行 场景 6: 自主缺位检测\033[0m")
+        print(f"\n\033[94m  📌 场景 6: 自主缺位检测 (Planner → Codegen → Loader)\033[0m")
+        print("     Planner 自动检测工具不存在 → 生成代码 → 热加载 → 执行。")
+        print("     " + "-" * 40)
+        from paladin.config import PaladinConfig
+        cfg = PaladinConfig()
+        cfg.planner.backend = "mock"
+        paladin_instance = Paladin(cfg)
+        result = paladin_instance.run("提取标题")
+        print(f"  \033[1m💬 用户: \033[0m提取标题")
+        print(f"  \033[90m──────────────────────────────────────────────────────\033[0m")
+        print(f"  \033[92m✅ {result}\033[0m")
+        print("\n" + "─" * term_width)
 
         print(f"\n\033[95m  {'=' * (term_width - 4)}\033[0m")
         print("\033[95m  ✅ 演示完成。Planner 自主决策能力已就绪。\033[0m")
