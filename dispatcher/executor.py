@@ -14,12 +14,14 @@ from ..repair import repair_tool
 
 
 class Executor:
-    def __init__(self, timeout: float = 5.0, tools_config=None, codegen_backend: str = "mock"):
+    def __init__(self, timeout: float = 5.0, tools_config=None, codegen_backend: str = "mock",
+                 adapter=None):
         self.tools = {}
         self.timeout = timeout
         self.codegen = CodeGenerator(backend=codegen_backend)
         self.loader = ToolLoader()
-        self._tool_metadata: Dict[str, Dict] = {}  # v0.9.3: 生成工具元数据（代码+测试用例）
+        self._tool_metadata: Dict[str, Dict] = {}
+        self.adapter = adapter
         self._register_defaults(tools_config)
 
     def register(self, name: str, func: Callable):
@@ -126,8 +128,7 @@ class Executor:
         code = meta["code"]
         test_cases = meta["test_cases"]
         report = validate_tool(tool_name, code, test_cases)
-        # 当前 Executor 不持有 adapter，定义在此供后续分支引用
-        adapter = None
+        adapter = getattr(self, "adapter", None)
         if report.all_passed:
             meta["validated"] = True
             # mock 模式：即使验证通过也记录（无 LLM 的"通过"不代表真正正确）

@@ -34,7 +34,7 @@ class Paladin:
             model_adapter=self.adapter,
             backend=self.config.planner.backend,
         )
-        self.executor = Executor(tools_config=self.config.tools)
+        self.executor = Executor(tools_config=self.config.tools, adapter=self.adapter)
         self.router = ModelRouter()
         self.watch = CostWatch()
 
