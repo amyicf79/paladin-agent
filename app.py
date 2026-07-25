@@ -40,12 +40,16 @@ class Paladin:
 
     def run(self, query: str, max_iterations: Optional[int] = None) -> str:
         iterations = max_iterations or self.config.core.max_iterations
-        context = {"query": query, "history": []}
+        context = {"query": query, "history": [], "shared": {}}
         for i in range(iterations):
             plan = self.planner.plan(context)
             if not plan:
                 break
             results = self.executor.execute(plan)
+            # 跨轮次累积 context_updates（供 synthesize 使用）
+            for r in results:
+                if r.context_updates:
+                    context["shared"].update(r.context_updates)
             context["history"].append({"plan": plan, "results": results})
             if self.planner.is_complete(context):
                 break

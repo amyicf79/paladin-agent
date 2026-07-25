@@ -73,9 +73,11 @@ class Planner:
 
     def synthesize(self, context: Dict) -> str:
         query = context.get("query", "")
+        shared = context.get("shared", {})
         if not self.adapter: return "完成。"
         h = self._format_history(context.get("history", []))
+        extra = f"\n累积上下文：{json.dumps(shared, ensure_ascii=False)}" if shared else ""
         return "".join(self.adapter.chat([
             {"role": "system", "content": "基于查询和执行结果生成最终回复。"},
-            {"role": "user", "content": f"查询：{query}\n历史：{h}"}
+            {"role": "user", "content": f"查询：{query}\n历史：{h}{extra}"}
         ]))
