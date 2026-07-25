@@ -1,12 +1,9 @@
 """
-executor.py v0.4 — 调度官：支持 chain / parallel / branch 三种执行模式
-
-- chain（链式）：A → B → C，顺序执行（默认）
-- parallel（并行）：同时调用多个工具
-- branch（条件分支）：根据上一步结果决定下一步调什么
+executor.py v0.4 — 调度官：接受协议输入，输出协议结果
 """
-from typing import Dict, Any, List, Callable, Optional
+from typing import Dict, Any, List, Callable
 import time, concurrent.futures
+from ..commander.protocol import ExecutionPlan, PlanStep, ExecutionResult
 
 
 class Executor:
@@ -24,47 +21,43 @@ class Executor:
         self.register("get_memory", lambda x: f"回忆: {x} (模拟)")
         self.register("generate_report", lambda t: f"# 报告: {t}\n\nPaladin v0.4")
 
-    def execute(self, plan: List[Dict[str, Any]], mode: str = "chain") -> List[Dict[str, Any]]:
+    def execute(self, plan: ExecutionPlan) -> List[ExecutionResult]:
+        mode = plan.mode
         if mode == "chain":
-            return self._execute_chain(plan)
+            return self._chain(plan.steps)
         elif mode == "parallel":
-            return self._execute_parallel(plan)
+            return self._parallel(plan.steps)
         elif mode == "branch":
-            return self._execute_branch(plan)
-        return self._execute_chain(plan)
+            return self._branch(plan.steps)
+        return self._chain(plan.steps)
 
-    def _run_step(self, step: Dict) -> Dict:
-        tool_name = step.get("tool")
-        args = step.get("args", {})
-        if tool_name not in self.tools:
-            return {"error": f"未知工具: {tool_name}"}
+    def _run_step(self, step: PlanStep) -> ExecutionResult:
+        name = step.tool
+        args = step.args or {}
+        if name not in self.tools:
+            return ExecutionResult(step=step, error=f"未知工具: {name}")
         try:
             start = time.time()
-            result = self.tools[tool_name](**args)
+            result = self.tools[name](**args)
             elapsed = time.time() - start
-            entry = {"result": result, "tool": tool_name}
-            if elapsed > self.timeout:
-                entry["warning"] = f"超时(>{self.timeout}s)"
-            return entry
+            return ExecutionResult(step=step, result=result, duration_ms=elapsed * 1000)
         except Exception as e:
-            return {"error": str(e), "tool": tool_name}
+            return ExecutionResult(step=step, error=str(e))
 
-    def _execute_chain(self, plan: List[Dict]) -> List[Dict]:
-        return [self._run_step(s) for s in plan]
+    def _chain(self, steps: List[PlanStep]) -> List[ExecutionResult]:
+        return [self._run_step(s) for s in steps]
 
-    def _execute_parallel(self, plan: List[Dict]) -> List[Dict]:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(plan)) as pool:
-            return list(pool.map(self._run_step, plan))
+    def _parallel(self, steps: List[PlanStep]) -> List[ExecutionResult]:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(steps)) as pool:
+            return list(pool.map(self._run_step, steps))
 
-    def _execute_branch(self, plan: List[Dict]) -> List[Dict]:
-        """条件分支：上一步结果可影响后续步骤"""
+    def _branch(self, steps: List[PlanStep]) -> List[ExecutionResult]:
         results = []
-        for step in plan:
-            cond = step.get("condition")
-            if cond and results:
-                last = results[-1].get("result", "")
-                if cond not in str(last):
-                    results.append({"skipped": f"条件不满足: {cond}", "tool": step.get("tool")})
+        for s in steps:
+            if s.condition and results:
+                last = results[-1].result or ""
+                if s.condition not in str(last):
+                    results.append(ExecutionResult(step=s, result="skipped"))
                     continue
-            results.append(self._run_step(step))
+            results.append(self._run_step(s))
         return results
