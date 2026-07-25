@@ -1,0 +1,10 @@
+{
+  "tool_name": "search_keyword",
+  "problem_signature": "bf6736947506ab37c26821997b3a1d0a",
+  "original_code": "def search_keyword(**kw): pass",
+  "repaired_code": "def search_keyword(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:25:35.251560",
+  "success": true
+}

@@ -1,0 +1,10 @@
+{
+  "tool_name": "list_directory",
+  "problem_signature": "119a6e79a4cae1ae50c043adf83249e2",
+  "original_code": "def list_directory(**kw): pass",
+  "repaired_code": "def list_directory(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:25:20.411165",
+  "success": true
+}

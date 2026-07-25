@@ -131,27 +131,26 @@ class Executor:
         adapter = getattr(self, "adapter", None)
         if report.all_passed:
             meta["validated"] = True
-            # mock 模式：即使验证通过也记录（无 LLM 的"通过"不代表真正正确）
-            if adapter is None:
-                try:
-                    from ..experience_store import Experience, get_store
-                    from datetime import datetime
-                    import hashlib
-                    store = get_store()
-                    store.add_experience(Experience(
-                        tool_name=tool_name,
-                        original_code=code,
-                        repaired_code=code,
-                        error_type="PassedInMock",
-                        error_message=report.summary or "验证通过（mock 模式）",
-                        success=True,
-                        timestamp=datetime.now().isoformat(),
-                        problem_signature=hashlib.md5(
-                            (tool_name + "passed").encode()
-                        ).hexdigest()
-                    ))
-                except Exception:
-                    pass
+            # 生成工具验证通过也记录经验（不论是否有 adapter）
+            try:
+                from ..experience_store import Experience, get_store
+                from datetime import datetime
+                import hashlib
+                store = get_store()
+                store.add_experience(Experience(
+                    tool_name=tool_name,
+                    original_code=code,
+                    repaired_code=code,
+                    error_type="Passed" if adapter else "PassedInMock",
+                    error_message=report.summary or "验证通过",
+                    success=True,
+                    timestamp=datetime.now().isoformat(),
+                    problem_signature=hashlib.md5(
+                        (tool_name + "passed").encode()
+                    ).hexdigest()
+                ))
+            except Exception:
+                pass
             return True
         # 修复（仅当有 adapter 时）
         adapter = getattr(self, "adapter", None)

@@ -1,0 +1,10 @@
+{
+  "tool_name": "extract_email_domain",
+  "problem_signature": "4f49580947b55bb039e566c65875322a",
+  "original_code": "def extract_email_domain(**kwargs) -> str:\n    \"\"\"从邮件地址中提取域名部分。输入参数：email（字符串，邮件地址，例如'user@example.com'）。输出：域名（字符串，例如'example.com'）。代码实现：使用Python字符串的split('@')方法，返回第二部分。（自动生成占位）\"\"\"\n    return f\"执行 {kwargs}：功能待实现\"\n",
+  "repaired_code": "def extract_email_domain(**kwargs) -> str:\n    \"\"\"从邮件地址中提取域名部分。输入参数：email（字符串，邮件地址，例如'user@example.com'）。输出：域名（字符串，例如'example.com'）。代码实现：使用Python字符串的split('@')方法，返回第二部分。（自动生成占位）\"\"\"\n    return f\"执行 {kwargs}：功能待实现\"\n",
+  "error_type": "Passed",
+  "error_message": "1/1 测试用例通过",
+  "timestamp": "2026-07-25T13:27:01.037096",
+  "success": true
+}
