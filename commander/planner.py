@@ -5,7 +5,6 @@ planner.py v0.8 — 指挥官：支持协议输出的上下文感知规划器
 返回 ExecutionPlan（含 mode + steps + meta_actions），非裸列表
 """
 import json
-import re
 from typing import List, Dict, Any, Optional, Set, Union, Tuple
 from dataclasses import asdict
 from .protocol import ExecutionPlan, PlanStep, MetaAction
