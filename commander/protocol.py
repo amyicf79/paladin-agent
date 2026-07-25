@@ -25,8 +25,12 @@ class ExecutionPlan:
 
 @dataclass
 class ExecutionResult:
-    """Executor 返回的单步结果"""
+    """Executor 返回的单步结果
+
+    context_updates: 工具返回的上下文更新，chain 模式中自动传递给后续步骤
+    """
     step: PlanStep
     result: Any = None
     error: Optional[str] = None
     duration_ms: float = 0.0
+    context_updates: Dict[str, Any] = field(default_factory=dict)

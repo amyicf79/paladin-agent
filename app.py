@@ -95,12 +95,22 @@ class Paladin:
                     {"tool": "generate_report", "args": {"title": "默认方案"}},
                 ],
             },
+            {
+                "name": "场景 4: 上下文传递 (Chain + $变量)",
+                "query": "搜索 Python 最新版本，然后根据搜索结果回忆相关信息。",
+                "desc": "chain 模式下，search_web 的结果自动注入下一步 get_memory。",
+                "mode": "chain",
+                "steps": [
+                    {"tool": "search_web", "args": {"q": "Python 最新版本 2026"}},
+                    {"tool": "get_memory", "args": {"x": "$search_result"}},
+                ],
+            },
         ]
 
         term_width = min(shutil.get_terminal_size().columns, 100)
         print("\033[95m" + "=" * term_width + "\033[0m")
-        print("\033[1m  ⚔️  Paladin v0.6 演示靶场 (零依赖终端可视化)\033[0m")
-        print("  展示: 多步推理 / 并行检索 / 条件分支\n")
+        print("\033[1m  ⚔️  Paladin v0.8 演示靶场 (零依赖终端可视化)\033[0m")
+        print("  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递\n")
 
         for idx, sc in enumerate(scenarios, 1):
             if not auto:
@@ -153,7 +163,7 @@ class Paladin:
                     args_str = ", ".join(f"{k}={v}" for k, v in res.step.args.items())
                     print(f"  {prefix}    \033[90m参数\033[0m: {args_str}")
 
-                # 结果 / 错误 / 跳过
+                # 结果 / 错误 / 跳过 / 上下文传递
                 if res.error:
                     status = f"\033[91m❌ 错误: {res.error}\033[0m"
                 elif hasattr(res, 'result') and res.result == "skipped":
@@ -166,6 +176,11 @@ class Paladin:
 
                 print(f"  {prefix}    \033[90m耗时\033[0m: {res.duration_ms:.1f}ms")
                 print(f"  {prefix}    {status}")
+
+                # 显示上下文传递（v0.8）
+                if res.context_updates:
+                    ctx_str = ", ".join(f"{k}={v}" for k, v in res.context_updates.items())
+                    print(f"  {prefix}    \033[90m→ 上下文: \033[96m{ctx_str}\033[0m")
 
         # 3. 最终答案
         print(f"  \033[1m🤖 最终回答:\033[0m")
