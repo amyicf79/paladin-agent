@@ -1,0 +1,10 @@
+{
+  "tool_name": "generate_text",
+  "problem_signature": "6f020621ef276a7bcea95ab84e114e95",
+  "original_code": "def generate_text(**kw): pass",
+  "repaired_code": "def generate_text(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:37:17.404982",
+  "success": true
+}

@@ -1,0 +1,10 @@
+{
+  "tool_name": "parse_csv_column",
+  "problem_signature": "e0389fa72ccd4819d36fea80f2cdf499",
+  "original_code": "def parse_csv_column(**kw): pass",
+  "repaired_code": "def parse_csv_column(**kw): pass",
+  "error_type": "Passed",
+  "error_message": "验证通过",
+  "timestamp": "2026-07-25T13:37:29.803031",
+  "success": true
+}

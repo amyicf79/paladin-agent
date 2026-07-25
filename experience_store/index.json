@@ -76,5 +76,41 @@
     "tool_name": "extract_email_domain",
     "error_type": "Passed",
     "timestamp": "2026-07-25T13:27:06.523478"
+  },
+  {
+    "file": "extract_title_bd69d613.json",
+    "tool_name": "extract_title",
+    "error_type": "ValidationError",
+    "timestamp": "2026-07-25T13:34:01.898916"
+  },
+  {
+    "file": "extract_title_bd69d613.json",
+    "tool_name": "extract_title",
+    "error_type": "ValidationError",
+    "timestamp": "2026-07-25T13:34:02.661504"
+  },
+  {
+    "file": "write_ai_commentary_f16c48c7.json",
+    "tool_name": "write_ai_commentary",
+    "error_type": "Passed",
+    "timestamp": "2026-07-25T13:36:50.311985"
+  },
+  {
+    "file": "write_ai_commentary_f16c48c7.json",
+    "tool_name": "write_ai_commentary",
+    "error_type": "Passed",
+    "timestamp": "2026-07-25T13:37:13.332064"
+  },
+  {
+    "file": "generate_text_ea0ad801.json",
+    "tool_name": "generate_text",
+    "error_type": "Passed",
+    "timestamp": "2026-07-25T13:37:17.404982"
+  },
+  {
+    "file": "parse_csv_column_5836a77c.json",
+    "tool_name": "parse_csv_column",
+    "error_type": "Passed",
+    "timestamp": "2026-07-25T13:37:29.803031"
   }
 ]
