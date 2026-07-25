@@ -1,16 +1,21 @@
 """
 executor.py v0.8 — 调度官：接受协议输入，输出协议结果
                    chain 模式支持上下文传递（context_updates）
+                   集成 Tool Synthesis：元操作 → 代码生成 → 热加载 → 执行
 """
 from typing import Dict, Any, List, Callable, Optional
 import time, concurrent.futures
 from ..commander.protocol import ExecutionPlan, PlanStep, ExecutionResult
+from ..codegen import CodeGenerator
+from ..loader import ToolLoader
 
 
 class Executor:
-    def __init__(self, timeout: float = 5.0, tools_config=None):
+    def __init__(self, timeout: float = 5.0, tools_config=None, codegen_backend: str = "mock"):
         self.tools = {}
         self.timeout = timeout
+        self.codegen = CodeGenerator(backend=codegen_backend)
+        self.loader = ToolLoader()
         self._register_defaults(tools_config)
 
     def register(self, name: str, func: Callable):
@@ -38,14 +43,51 @@ class Executor:
             self.register(name, func)
 
     def execute(self, plan: ExecutionPlan) -> List[ExecutionResult]:
+        """执行计划：先处理元操作（工具生成），再按模式执行步骤"""
+        meta_results = []
+
+        # 1) 处理元操作：生成并加载新工具
+        if plan.meta_actions:
+            for meta in plan.meta_actions:
+                if meta.action_type == "generate_tool":
+                    result = self._handle_generate_tool(meta)
+                    meta_results.append(result)
+                else:
+                    meta_results.append(
+                        ExecutionResult(step=PlanStep(tool="meta"),
+                                        error=f"不支持的操作类型: {meta.action_type}")
+                    )
+
+        # 2) 按模式执行步骤
         mode = plan.mode
         if mode == "chain":
-            return self._chain(plan.steps)
+            step_results = self._chain(plan.steps)
         elif mode == "parallel":
-            return self._parallel(plan.steps)
+            step_results = self._parallel(plan.steps)
         elif mode == "branch":
-            return self._branch(plan.steps)
-        return self._chain(plan.steps)
+            step_results = self._branch(plan.steps)
+        else:
+            step_results = self._chain(plan.steps)
+
+        return meta_results + step_results
+
+    def _handle_generate_tool(self, meta) -> ExecutionResult:
+        """处理生成工具元操作：codegen → save → load → register"""
+        step = PlanStep(tool=f"codegen:{meta.target_name}")
+        try:
+            code = self.codegen.generate(meta)
+            filepath = self.codegen.save_to_file(code, meta.target_name,
+                                                  directory=str(self.loader.tool_dir))
+            func = self.loader.load_tool(meta.target_name)
+            self.register(meta.target_name, func)
+            return ExecutionResult(
+                step=step,
+                result=f"✅ 工具 '{meta.target_name}' 已生成并注册",
+                duration_ms=0,
+                context_updates={f"tool_{meta.target_name}_ready": True}
+            )
+        except Exception as e:
+            return ExecutionResult(step=step, error=f"工具生成失败: {e}")
 
     def should_continue(self, results: List[ExecutionResult]) -> bool:
         """判断是否要继续下一轮规划"""

@@ -109,12 +109,25 @@ class Paladin:
                     {"tool": "get_memory", "args": {"x": "$search_result"}},
                 ],
             },
+            {
+                "name": "场景 5: 工具合成 (Tool Synthesis)",
+                "query": "帮我写一个工具从 URL 提取标题并搜索相关新闻。",
+                "desc": "Planner 识别缺失能力 → CodeGenerator 生成工具 → Loader 热加载 → 执行。",
+                "mode": "chain",
+                "meta": [
+                    {"action_type": "generate_tool", "description": "从 URL 提取标题",
+                     "target_name": "extract_title"},
+                ],
+                "steps": [
+                    {"tool": "extract_title", "args": {"url": "https://www.python.org"}},
+                ],
+            },
         ]
 
         term_width = min(shutil.get_terminal_size().columns, 100)
         print("\033[95m" + "=" * term_width + "\033[0m")
         print("\033[1m  ⚔️  Paladin v0.8 演示靶场 (零依赖终端可视化)\033[0m")
-        print("  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递\n")
+        print("  展示: 多步推理 / 并行检索 / 条件分支 / 上下文传递 / 工具合成\n")
 
         for idx, sc in enumerate(scenarios, 1):
             if not auto:
@@ -122,7 +135,8 @@ class Paladin:
             print(f"\n\033[94m  📌 {sc['name']}\033[0m")
             print(f"     {sc['desc']}")
             print("     " + "-" * 40)
-            result = Paladin._run_demo(sc["query"], sc["mode"], sc["steps"])
+            meta_dicts = sc.get("meta", None)
+            result = Paladin._run_demo(sc["query"], sc["mode"], sc["steps"], meta_dicts=meta_dicts)
             Paladin._render_tree(sc["query"], result, term_width)
             print("\n" + "─" * term_width)
 
@@ -130,11 +144,17 @@ class Paladin:
         print("\033[95m  ✅ 演示完成。Planner 自主决策能力已就绪。\033[0m")
 
     @staticmethod
-    def _run_demo(query: str, mode: str, step_dicts: List[Dict]) -> Dict[str, Any]:
-        """用硬编码计划执行单场景（绕过 LLM 适配器依赖）"""
-        executor = Executor()
+    def _run_demo(query: str, mode: str, step_dicts: List[Dict],
+                   meta_dicts: Optional[List[Dict]] = None) -> Dict[str, Any]:
+        """用硬编码计划执行单场景（支持 meta_actions 工具合成）"""
+        executor = Executor(codegen_backend="mock")
         steps = [PlanStep(**s) for s in step_dicts]
-        plan = ExecutionPlan(mode=mode, steps=steps, reason=f"Demo: {mode} mode")
+        meta_actions = []
+        if meta_dicts:
+            from paladin.commander.protocol import MetaAction
+            meta_actions = [MetaAction(**m) for m in meta_dicts]
+        plan = ExecutionPlan(mode=mode, steps=steps, meta_actions=meta_actions,
+                             reason=f"Demo: {mode} mode")
         results = executor.execute(plan)
         return {"history": [{"plan": plan, "results": results}], "final": f"✅ {mode} 模式演示完成。"}
 
