@@ -64,13 +64,25 @@ class Planner:
             if "```json" in raw: raw = raw.split("```json")[1].split("```")[0]
             elif "```" in raw: raw = raw.split("```")[1].split("```")[0]
             data = json.loads(raw.strip()) if raw.strip() else {}
-            return ExecutionPlan(
+            plan = ExecutionPlan(
                 mode=data.get("mode", "chain"),
                 steps=[PlanStep(**s) for s in data.get("steps", [])],
                 reason=data.get("reason")
             )
-        except:
-            return ExecutionPlan()
+            for ma in data.get("meta_actions", []):
+                plan.meta_actions.append(MetaAction(**ma))
+            return plan
+        except Exception:
+            # Fallback: LLM 输出了代码而非 JSON — 转为 MetaAction
+            plan = ExecutionPlan(mode="execute", reason="LLM 响应非 JSON，fallback 为工具合成")
+            meta = MetaAction(
+                action_type="generate_tool",
+                description=query[:80],
+                target_name=Planner._infer_tool_name(query)
+            )
+            plan.meta_actions.append(meta)
+            plan.steps.append(PlanStep(tool=meta.target_name))
+            return plan
 
     def _mock_plan(self, query: str, tool_registry: Set[str]) -> ExecutionPlan:
         """Mock 模式：解析用户意图，检测工具缺位，自动生成 MetaAction"""
@@ -99,6 +111,17 @@ class Planner:
             meta_actions=meta_actions,
             reason=f"检测到工具 '{tool_name}' {'不存在，已触发合成' if meta_actions else '已存在，直接执行'}",
         )
+
+    @staticmethod
+    def _infer_tool_name(query: str) -> str:
+        """从查询中推断工具名"""
+        import re
+        # 取前三个有意义的词做工具名
+        words = re.findall(r'[\u4e00-\u9fff]+|[a-zA-Z_]+', query)
+        name = "_".join(words[:3]).lower() or "custom_tool"
+        # 只保留字母和下划线
+        name = re.sub(r'[^a-z_]', '', name)[:40]
+        return name
 
     @staticmethod
     def _parse_tool_intent(query: str) -> Tuple[Optional[str], Optional[str]]:
