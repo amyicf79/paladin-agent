@@ -1,25 +1,35 @@
 """
-executor.py v0.4 — 调度官：接受协议输入，输出协议结果
+executor.py v0.7 — 调度官：接受协议输入，输出协议结果
 """
-from typing import Dict, Any, List, Callable
+from typing import Dict, Any, List, Callable, Optional
 import time, concurrent.futures
 from ..commander.protocol import ExecutionPlan, PlanStep, ExecutionResult
 
 
 class Executor:
-    def __init__(self, timeout: float = 5.0):
+    def __init__(self, timeout: float = 5.0, tools_config=None):
         self.tools = {}
         self.timeout = timeout
-        self._register_defaults()
+        self._register_defaults(tools_config)
 
     def register(self, name: str, func: Callable):
         self.tools[name] = func
 
-    def _register_defaults(self):
-        self.register("search_web", lambda q: f"模拟搜索: {q}")
-        self.register("calculate", lambda expr: f"计算: {eval(expr)}")
-        self.register("get_memory", lambda x: f"回忆: {x} (模拟)")
-        self.register("generate_report", lambda title="": f"# 报告: {title}\n\nPaladin v0.6")
+    def _register_defaults(self, tools_config=None):
+        # (tool_name → config attribute name)
+        all_tools = {
+            "search_web":       ("enable_search",    lambda q: f"模拟搜索: {q}"),
+            "calculate":        ("enable_calculate", lambda expr: f"计算: {eval(expr)}"),
+            "get_memory":       ("enable_memory",    lambda x: f"回忆: {x} (模拟)"),
+            "generate_report":  ("enable_report",    lambda title="": f"# 报告: {title}\n\nPaladin v0.7"),
+        }
+
+        for name, (cfg_key, func) in all_tools.items():
+            if tools_config is not None:
+                enabled = getattr(tools_config, cfg_key, True)
+                if not enabled:
+                    continue
+            self.register(name, func)
 
     def execute(self, plan: ExecutionPlan) -> List[ExecutionResult]:
         mode = plan.mode

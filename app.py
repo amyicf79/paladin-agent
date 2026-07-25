@@ -9,7 +9,8 @@ app.py — Paladin 应用入口
 import sys
 import shutil
 import time
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from paladin.config import PaladinConfig, load_config
 from paladin.models.cache import cache
 from paladin.models.router import ModelRouter
 from paladin.models.watch import CostWatch
@@ -20,16 +21,27 @@ from paladin.commander.protocol import ExecutionPlan, PlanStep, ExecutionResult
 
 
 class Paladin:
-    def __init__(self):
-        self.adapter = DeepSeekAdapter()
-        self.planner = Planner(self.adapter)
-        self.executor = Executor()
+    def __init__(self, config: Optional[PaladinConfig] = None):
+        self.config = config or PaladinConfig()
+
+        # Planner: 根据 backend 选择适配器
+        if self.config.planner.backend == "mock":
+            self.adapter = None
+        else:
+            self.adapter = DeepSeekAdapter()
+
+        self.planner = Planner(
+            model_adapter=self.adapter,
+            backend=self.config.planner.backend,
+        )
+        self.executor = Executor(tools_config=self.config.tools)
         self.router = ModelRouter()
         self.watch = CostWatch()
 
-    def run(self, query: str, max_iterations: int = 3) -> str:
+    def run(self, query: str, max_iterations: Optional[int] = None) -> str:
+        iterations = max_iterations or self.config.core.max_iterations
         context = {"query": query, "history": []}
-        for i in range(max_iterations):
+        for i in range(iterations):
             plan = self.planner.plan(context)
             if not plan:
                 break
@@ -162,11 +174,14 @@ class Paladin:
 
 
 def main():
-    app = Paladin()
+    config = load_config()
+    app = Paladin(config)
     if len(sys.argv) > 1:
         print(app.run(" ".join(sys.argv[1:])))
     else:
         print("Paladin — AI-Native 脚手架 (Ctrl+C 退出)")
+        print(f"   Planner backend: {config.planner.backend}")
+        print(f"   Max iterations:  {config.core.max_iterations}")
         while True:
             try:
                 q = input("\n> ")

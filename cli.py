@@ -61,14 +61,23 @@ def main():
     sub = parser.add_subparsers(dest="command")
     init_cmd = sub.add_parser("init", help="初始化新项目")
     init_cmd.add_argument("name", help="项目名称")
-    sub.add_parser("demo", help="运行内置演示场景，展示自主编排能力（零依赖终端可视化）")
+    demo_cmd = sub.add_parser("demo", help="运行内置演示场景，展示自主编排能力（零依赖终端可视化）")
+    demo_cmd.add_argument("--config", type=str, default=None,
+                          help="指定 paladin.toml 配置文件路径（默认: 项目根目录）")
+    demo_cmd.add_argument("--auto", action="store_true",
+                          help="自动播放模式，跳过 Enter 等待")
 
     args = parser.parse_args()
     if args.command == "init":
         init_project(args.name)
     elif args.command == "demo":
+        from paladin.config import load_config
         from paladin.app import Paladin
-        Paladin.demo()
+
+        cfg = load_config(args.config)
+        # CLI --auto 覆盖配置文件中的 auto_mode
+        auto = args.auto or cfg.demo.auto_mode
+        Paladin.demo(auto=auto)
     else:
         parser.print_help()
 

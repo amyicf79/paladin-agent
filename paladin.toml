@@ -1,0 +1,31 @@
+# Paladin v0.7 配置文件
+# 优先级: CLI --config > 项目 paladin.toml > 内置默认值
+
+[core]
+max_iterations = 3
+default_model = "deepseek"
+
+[planner]
+# "mock" → 使用内置硬编码逻辑（当前行为，无需 LLM 适配器）
+# "deepseek" / "qwen" / "glm" → 调用真实 LLM 进行编排（v0.8+ 支持）
+backend = "mock"
+# 为空时 fallback 到 core.default_model
+model = ""
+
+[tools]
+enable_search = true
+enable_calculate = true
+enable_memory = true
+enable_report = true
+
+[demo]
+auto_mode = false
+scenes = ["chain", "parallel", "branch"]
+
+[logging]
+level = "info"
+
+[models]
+# API 配置占位（v0.8 后生效）
+deepseek_api_key = ""
+deepseek_base_url = "https://api.deepseek.com"

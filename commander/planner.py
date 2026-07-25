@@ -22,8 +22,9 @@ SYSTEM_PROMPT = """你是任务规划专家。根据用户查询和执行历史�
 
 
 class Planner:
-    def __init__(self, model_adapter=None):
+    def __init__(self, model_adapter=None, backend: str = "mock"):
         self.adapter = model_adapter
+        self.backend = backend
 
     def _format_history(self, history):
         if not history: return "无"
