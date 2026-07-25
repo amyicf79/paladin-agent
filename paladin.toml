@@ -8,7 +8,7 @@ default_model = "deepseek"
 [planner]
 # "mock" → 使用内置硬编码逻辑（当前行为，无需 LLM 适配器）
 # "deepseek" / "qwen" / "glm" → 调用真实 LLM 进行编排（v0.8+ 支持）
-backend = "mock"
+backend = "deepseek"
 # 为空时 fallback 到 core.default_model
 model = ""
 

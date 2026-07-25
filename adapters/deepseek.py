@@ -9,7 +9,7 @@ from typing import Optional, Generator, List, Dict
 class DeepSeekAdapter:
     """DeepSeek 模型适配器"""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "deepseek-chat"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "deepseek-v4-flash"):
         self.model = model
         self.api_key = api_key
 
