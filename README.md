@@ -40,7 +40,45 @@ Paladin 让 LLM 在需要时**自动生成工具、验证它、注册它、下�
 
 ---
 
-## 快速开始
+## 📝 极简工具原则：代码对比
+
+**传统三层模式（77 行 / 2465 字符）：**
+```python
+class CsvRecord:          # models.py
+    def __init__(self, row):
+        self.name = row.get("name","")
+    def to_dict(self): ...
+
+class CsvService:         # service.py
+    @staticmethod
+    def load(filepath): ...
+    def to_json(records): ...
+    def filter_by_city(records, city): ...
+
+class CsvRouter:          # router.py
+    def handle_csv_to_json(self, filepath): ...
+    def handle_filter_by_city(self, filepath, city): ...
+```
+
+**Paladin 极简模式（37 行 / 914 字符）：**
+```python
+def csv_to_json(filepath: str) -> str:
+    """读取 CSV 文件并返回 JSON（单文件，零分层）"""
+    import csv, json
+    with open(filepath, "r") as f:
+        data = list(csv.DictReader(f))
+    return json.dumps(data, ensure_ascii=False)
+
+def filter_by_city(filepath: str, city: str) -> str:
+    raw = json.loads(csv_to_json(filepath))
+    return json.dumps([row for row in raw if row.get("city") == city], ensure_ascii=False)
+```
+
+**字符 -63% · 行数 -52% · 类数量：3 → 0**
+
+---
+
+## 🚀 快速开始
 
 ```python
 from paladin import Paladin
