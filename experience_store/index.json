@@ -3,132 +3,216 @@
     "file": "fetch_web_title_bce56427.json",
     "tool_name": "fetch_web_title",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:24:44.377157"
+    "timestamp": "2026-07-25T13:24:44.377157",
+    "action": "unknown"
   },
   {
     "file": "text_word_counter_279ea265.json",
     "tool_name": "text_word_counter",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:24:57.083479"
+    "timestamp": "2026-07-25T13:24:57.083479",
+    "action": "unknown"
   },
   {
     "file": "read_json_file_9b1ea652.json",
     "tool_name": "read_json_file",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:25:15.676519"
+    "timestamp": "2026-07-25T13:25:15.676519",
+    "action": "unknown"
   },
   {
     "file": "list_directory_53c26e85.json",
     "tool_name": "list_directory",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:25:20.411165"
+    "timestamp": "2026-07-25T13:25:20.411165",
+    "action": "unknown"
   },
   {
     "file": "search_keyword_86b93ab7.json",
     "tool_name": "search_keyword",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:25:35.251560"
+    "timestamp": "2026-07-25T13:25:35.251560",
+    "action": "unknown"
   },
   {
     "file": "csv_row_count_4db5f329.json",
     "tool_name": "csv_row_count",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:25:45.864168"
+    "timestamp": "2026-07-25T13:25:45.864168",
+    "action": "unknown"
   },
   {
     "file": "random_password_6f97d95a.json",
     "tool_name": "random_password",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:26:02.029855"
+    "timestamp": "2026-07-25T13:26:02.029855",
+    "action": "unknown"
   },
   {
     "file": "check_url_status_cd3bf884.json",
     "tool_name": "check_url_status",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:26:09.148398"
+    "timestamp": "2026-07-25T13:26:09.148398",
+    "action": "unknown"
   },
   {
     "file": "format_timestamp_4ff6a6f7.json",
     "tool_name": "format_timestamp",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:26:14.692487"
+    "timestamp": "2026-07-25T13:26:14.692487",
+    "action": "unknown"
   },
   {
     "file": "extract_email_domain_1904748a.json",
     "tool_name": "extract_email_domain",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:26:29.337369"
+    "timestamp": "2026-07-25T13:26:29.337369",
+    "action": "unknown"
   },
   {
     "file": "extract_email_domain_1904748a.json",
     "tool_name": "extract_email_domain",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:26:45.230347"
+    "timestamp": "2026-07-25T13:26:45.230347",
+    "action": "unknown"
   },
   {
     "file": "extract_email_domain_1904748a.json",
     "tool_name": "extract_email_domain",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:27:01.037096"
+    "timestamp": "2026-07-25T13:27:01.037096",
+    "action": "unknown"
   },
   {
     "file": "extract_email_domain_bcc0c613.json",
     "tool_name": "extract_email_domain",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:27:06.523478"
+    "timestamp": "2026-07-25T13:27:06.523478",
+    "action": "unknown"
   },
   {
     "file": "extract_title_bd69d613.json",
     "tool_name": "extract_title",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T13:34:01.898916"
+    "timestamp": "2026-07-25T13:34:01.898916",
+    "action": "unknown"
   },
   {
     "file": "extract_title_bd69d613.json",
     "tool_name": "extract_title",
     "error_type": "ValidationError",
-    "timestamp": "2026-07-25T13:34:02.661504"
+    "timestamp": "2026-07-25T13:34:02.661504",
+    "action": "unknown"
   },
   {
     "file": "write_ai_commentary_f16c48c7.json",
     "tool_name": "write_ai_commentary",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:36:50.311985"
+    "timestamp": "2026-07-25T13:36:50.311985",
+    "action": "unknown"
   },
   {
     "file": "write_ai_commentary_f16c48c7.json",
     "tool_name": "write_ai_commentary",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:37:13.332064"
+    "timestamp": "2026-07-25T13:37:13.332064",
+    "action": "unknown"
   },
   {
     "file": "generate_text_ea0ad801.json",
     "tool_name": "generate_text",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:37:17.404982"
+    "timestamp": "2026-07-25T13:37:17.404982",
+    "action": "unknown"
   },
   {
     "file": "parse_csv_column_5836a77c.json",
     "tool_name": "parse_csv_column",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:37:29.803031"
+    "timestamp": "2026-07-25T13:37:29.803031",
+    "action": "unknown"
   },
   {
     "file": "read_csv_file_e469df5a.json",
     "tool_name": "read_csv_file",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:41:52.875440"
+    "timestamp": "2026-07-25T13:41:52.875440",
+    "action": "unknown"
   },
   {
     "file": "csv_row_count_4db5f329.json",
     "tool_name": "csv_row_count",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:41:52.881319"
+    "timestamp": "2026-07-25T13:41:52.881319",
+    "action": "unknown"
   },
   {
     "file": "write_file_bd1ced79.json",
     "tool_name": "write_file",
     "error_type": "Passed",
-    "timestamp": "2026-07-25T13:41:52.884290"
+    "timestamp": "2026-07-25T13:41:52.884290",
+    "action": "unknown"
+  },
+  {
+    "action": "generate",
+    "success": true,
+    "file": "generate_ai_commentary_test.json",
+    "ts": "2026-07-26",
+    "tool_name": "generate_ai_commentary"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "file": "parse_csv_column_test.json",
+    "ts": "2026-07-26",
+    "tool_name": "parse_csv_column"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:23",
+    "tool_name": "count_word_frequency"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:23",
+    "tool_name": "extract_json_field"
+  },
+  {
+    "action": "generate",
+    "success": true,
+    "ts": "2026-07-26T15:22:23",
+    "tool_name": "generate_random_token"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:34",
+    "tool_name": "parse_csv"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:34",
+    "tool_name": "validate_column"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:34",
+    "tool_name": "compute_stats"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:34",
+    "tool_name": "filter_outliers"
+  },
+  {
+    "action": "parse",
+    "success": true,
+    "ts": "2026-07-26T15:22:34",
+    "tool_name": "aggregate_stats"
   }
 ]

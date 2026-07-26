@@ -56,12 +56,40 @@ class StrategyOptimizer:
         if not exps:
             return StrategyReport(summary="经验库为空，无法分析", total_experiences=0)
 
-        tools = set(e["tool_name"] for e in exps)
+        tools = set(e.get("tool_name") or e.get("tool", "") for e in exps)
         success = sum(1 for e in exps if e.get("success"))
         insights = []
 
+        # 2) 动作类型分析（I2新增）
+        actions = set(e.get("action") for e in exps if e.get("action"))
+        if actions:
+            insights.append(StrategyInsight(
+                category="action_coverage",
+                title="动作类型覆盖",
+                description=f"已覆盖 {len(actions)} 种动作类型: {', '.join(sorted(actions))}",
+                evidence=[f"{a}: {sum(1 for e in exps if e.get('action')==a)}次" for a in sorted(actions)],
+                recommendation="继续补全新动作类型"
+            ))
+        else:
+            insights.append(StrategyInsight(
+                category="action_coverage",
+                title="动作类型覆盖",
+                description="经验库未记录action类型，需I1补全后重新生成",
+                evidence=[],
+                recommendation="运行 paladin run 创建新工具触发经验记录"
+            ))
+
+        # 3) 工具总数统计
+        insights.append(StrategyInsight(
+            category="tool_count",
+            title="工具总数",
+            description=f"共计 {len(tools)} 个工具",
+            evidence=[f"工具: {t}" for t in sorted(tools)],
+            recommendation="工具数不足时优先补全基础工具类型"
+        ))
+
         # 1) 命名模式分析
-        names = [e["tool_name"] for e in exps]
+        names = [e.get("tool_name", "") for e in exps]
         prefix_counter = Counter(n.split("_")[0] for n in names if "_" in n)
         if prefix_counter:
             common = prefix_counter.most_common(1)[0]
@@ -81,7 +109,7 @@ class StrategyOptimizer:
                 category="pattern",
                 title=f"错误类型: {err_type}",
                 description=f"出现 {count}/{len(exps)} 次 ({count*100//len(exps)}%)",
-                evidence=[e["tool_name"] for e in exps if e.get("error_type") == err_type],
+                evidence=[e.get("tool_name", "") for e in exps if e.get("error_type") == err_type],
                 recommendation="检查该错误类型对应的验证规则是否过于严格"
             ))
 
