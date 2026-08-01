@@ -1,0 +1,11 @@
+{
+  "version": "3.0.0",
+  "date": "2026-07-27",
+  "theme": "市场式协作 — 从指派到竞争",
+  "deliverables": [
+    "agent_bid.py: Agent报价协议",
+    "reputation_tracker.py: 信誉系统",
+    "market_scheduler.py: 市场调度器+熔断",
+    "app.py: 集成市场调度"
+  ]
+}

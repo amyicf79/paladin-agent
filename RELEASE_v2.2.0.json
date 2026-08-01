@@ -1,0 +1,10 @@
+{
+  "version": "2.2.0",
+  "date": "2026-07-27",
+  "theme": "审计升级 — 可观测性+合规审计",
+  "core": [
+    "trace.py: 统一Trace ID引擎 (注入+查询+统计)",
+    "metacognition_gate.py: gate_audit注入trace_id",
+    "evolution_metrics.py: episodes注入trace_id"
+  ]
+}

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "paladin-ai"
+version = "0.1.0"
+description = "AI-Native 应用脚手架 — 模型是第一等公民"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+paladin = "paladin.cli:main"

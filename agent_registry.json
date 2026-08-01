@@ -1,0 +1,67 @@
+{
+  "hs_paladin": {
+    "name": "hs_paladin",
+    "allowed_tools": [
+      "assess"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "executor": {
+    "name": "executor",
+    "allowed_tools": [
+      "execute"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "auditor": {
+    "name": "auditor",
+    "allowed_tools": [
+      "audit"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "a": {
+    "name": "a",
+    "allowed_tools": [
+      "t"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "b": {
+    "name": "b",
+    "allowed_tools": [
+      "t"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "code_reviewer": {
+    "name": "code_reviewer",
+    "allowed_tools": [
+      "validate_code",
+      "repair_code"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  },
+  "data_analyst": {
+    "name": "data_analyst",
+    "allowed_tools": [
+      "compute_stats",
+      "filter_outliers"
+    ],
+    "forbidden_actions": [],
+    "max_token_budget": 10000,
+    "required_confidence": 0.5
+  }
+}

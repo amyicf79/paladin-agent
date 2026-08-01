@@ -1,0 +1,26 @@
+{
+  "scores": {
+    "hs_paladin": 0.8,
+    "executor": 0.367,
+    "auditor": 1.0
+  },
+  "history": {
+    "hs_paladin": [
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "executor": [
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "auditor": [
+      1.0
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "pool": {
+    "18da461a3c4f": {
+      "id": "18da461a3c4f",
+      "tool_name": "assess",
+      "code": "def assess():pass",
+      "source_agent": "hs_paladin",
+      "trust_score": 0.9,
+      "gain_score": 0.8,
+      "usage_count": 0,
+      "timestamp": "2026-07-27T22:07:51.314568"
+    },
+    "19331df68653": {
+      "id": "19331df68653",
+      "tool_name": "test_tool",
+      "code": "def test(): pass",
+      "source_agent": "test_agent",
+      "trust_score": 0.5,
+      "gain_score": 0.5,
+      "usage_count": 0,
+      "timestamp": "2026-07-27T22:11:23.001905"
+    },
+    "b6fe4af834b7": {
+      "id": "b6fe4af834b7",
+      "tool_name": "t",
+      "code": "def t(): pass",
+      "source_agent": "a",
+      "trust_score": 0.5,
+      "gain_score": 0.5,
+      "usage_count": 0,
+      "timestamp": "2026-07-27T22:11:42.481357"
+    }
+  },
+  "agent_quality": {}
+}
